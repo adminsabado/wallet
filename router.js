@@ -33,7 +33,7 @@ router.post('/mobileNoEnter', signupValidation, (req, res, next) => {
     }
   }
 
-  if (req.body.mobileNo.length != 10) {
+  if (req.body.mobileNo.length != 10 || req.body.mobileNo.at(0) == 0 || req.body.mobileNo.at(0) == 1 || req.body.mobileNo.at(0) == 2 || req.body.mobileNo.at(0) == 3 || req.body.mobileNo.at(0) == 4 || req.body.mobileNo.at(0) == 5) {
     mobileCheck = 1;
   }
 
