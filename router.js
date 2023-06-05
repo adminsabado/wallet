@@ -245,34 +245,23 @@ router.post('/login', signupValidation, (req, res, next) => {
   const saltRounds = 10
   const password = req.body.userPassword;
 
-  bcrypt.genSalt(saltRounds, function (err, salt) {
-    if (err) {
-      throw err
-    } else {
-      bcrypt.hash(password, salt, function(err, hash) {
-        if (err) {
-          throw err
-        } else {
-          //console.log("password"+hash);
+  db.query(`select userPassword from user where mobileNo = '${req.body.mobileNo}'`,
+          (err,result) => {
 
-          //db.query(`update user set userPassword = '${hash}' where mobileNo = '${req.body.mobileNo}'`);
 
-          db.query(`select * from user where mobileNo = '${req.body.mobileNo}' and userPassword= '${hash}'`,
-           (err,result) => {
-            if (result) {
-              console.log(result);
-              res.status(200).send("login successfully");
-            } else {
-              res.status(401).send("Unauthorized access");
-            }
-           }
-          );
-       //   res.status(200).send('updated user password successfully');
-          //$2a$10$FEBywZh8u9M0Cec/0mWep.1kXrwKeiWDba6tdKvDfEBjyePJnDT7K
-        }
-      })
-    }
-  })  
+            bcrypt.compare(password, result[0].userPassword, function(err, result) {
+              if (result) {
+                  console.log("equal");
+                  res.status(200).send("login successfully");
+
+              } else {
+                res.status(401).send("Unauthorized access");
+
+              }
+          });
+           
+      }
+   );  
 });
 
 // router.post('/enterGender', signupValidation, (req, res, next) => {
