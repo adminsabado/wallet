@@ -150,12 +150,36 @@ router.post('/enterPassword', signupValidation, (req, res, next) => {
 router.post('/enterPAN', signupValidation, (req, res, next) => {
 
     console.log(req.body.userPAN);
+
+    var mobileCheck = 0;
+
+  if (req.body.mobileNo.length == 10) {
+    var mobileNo = req.body.mobileNo;
+    for (var i = 0; i < mobileNo.length; i++) {
+      if (mobileNo.at(i) == '0' || mobileNo.at(i) == '1' || mobileNo.at(i) == '2' || mobileNo.at(i) == '3' || mobileNo.at(i) == '4' || mobileNo.at(i) == '5' || mobileNo.at(i) == '6' || mobileNo.at(i) == '7' || mobileNo.at(i) == '8' || mobileNo.at(i) == '9') {
+
+      } else {
+        mobileCheck = 1;
+        break;
+      }
+    }
+  }
+
+  if (req.body.mobileNo.length != 10 || req.body.mobileNo.at(0) == 0 || req.body.mobileNo.at(0) == 1 || req.body.mobileNo.at(0) == 2 || req.body.mobileNo.at(0) == 3 || req.body.mobileNo.at(0) == 4 || req.body.mobileNo.at(0) == 5) {
+    mobileCheck = 1;
+  }
+
+  if (mobileCheck == 1) {
+    res.status(400).send("plaese enter valid mobile number");
+  } else {
     db.query(`update user set userPAN = '${req.body.userPAN}' where mobileNo = '${req.body.mobileNo}'`);
 
     //write code for pan verify online here 
     db.query(`update user set userPanVerifyStatus = 1 where mobileNo = '${req.body.mobileNo}'`);
 
     res.status(200).send("successfully updated user PAN and pan verify status");
+  }
+    
 });
 
 router.post('/enterfullName', signupValidation, (req, res, next) => {
