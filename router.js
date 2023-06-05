@@ -19,11 +19,30 @@ router.post('/mobileNoEnter', signupValidation, (req, res, next) => {
   // var column_count = db.query(`select * from user`);
   // console.log(db.query(`select * from user`));
 
-  console.log(req.body.mobileNo);
+  var mobileCheck = 0;
 
+  if (req.body.mobileNo.length == 10) {
+    var mobileNo = req.body.mobileNo;
+    for (var i = 0; i < mobileNo.length; i++) {
+      if (mobileNo.at(i) == '0' || mobileNo.at(i) == '1' || mobileNo.at(i) == '2' || mobileNo.at(i) == '3' || mobileNo.at(i) == '4' || mobileNo.at(i) == '5' || mobileNo.at(i) == '6' || mobileNo.at(i) == '7' || mobileNo.at(i) == '8' || mobileNo.at(i) == '9') {
 
-  db.query(`insert into user(mobileNo,userOTP,verifyOtpStatus,userPanVerifyStatus,nameVerifiedPanStatus,age,emailOTP,emailOtpStatus,smsNotificationEmailSendChargeMoney,userPAN,fullName,gender,address,aadhar_voterCard_DL_passport,bankAccountNo,ifscCode,bankName,email,successfulSmsNotificationEmailSendMessage) values('${req.body.mobileNo}','1234',0,0,'','20',0,'',1,'','','','','','','','','','')`);
-  res.status(200).send('mobile number stored in database');
+      } else {
+        mobileCheck = 1;
+        break;
+      }
+    }
+  }
+
+  if (req.body.mobileNo.length != 10) {
+    mobileCheck = 1;
+  }
+
+  if (mobileCheck == 1) {
+    res.status(400).send("plaese enter valid mobile number");
+  } else {
+    db.query(`insert into user(mobileNo,userOTP,verifyOtpStatus,userPanVerifyStatus,nameVerifiedPanStatus,age,emailOTP,emailOtpStatus,smsNotificationEmailSendChargeMoney,userPAN,fullName,gender,address,aadhar_voterCard_DL_passport,bankAccountNo,ifscCode,holderName,email,successfulSmsNotificationEmailSendMessage) values('${req.body.mobileNo}','1234',0,0,'','20',0,'',1,'','','','','','','','','','')`);
+    res.status(200).send('mobile number stored in database');
+  }
 });
 
 router.post('/mobilOtpVerify', signupValidation, (req, res, next) => {
