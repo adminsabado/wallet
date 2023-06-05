@@ -8,17 +8,6 @@ const jwt = require('jsonwebtoken');
  
 router.post('/mobileNoEnter', signupValidation, (req, res, next) => {
 
-  //console.log(req.body.email);
-  // db.query(
-  //   `SELECT * FROM user WHERE LOWER(email) = LOWER(${db.escape(
-  //     req.body.email
-  //   )});`,
-
-  // );
-
-  // var column_count = db.query(`select * from user`);
-  // console.log(db.query(`select * from user`));
-
   var mobileCheck = 0;
 
   if (req.body.mobileNo.length == 10) {
@@ -51,7 +40,6 @@ router.post('/mobileNoEnter', signupValidation, (req, res, next) => {
         res.status(200).send('mobile number stored in database');
       }
     })
-
     
   }
 });
@@ -79,25 +67,18 @@ router.post('/mobilOtpVerify', signupValidation, (req, res, next) => {
   if (mobileCheck == 1) {
     res.status(400).send("plaese enter valid mobile number");
   } else {
-    db.query(`insert into user(mobileNo,userOTP,verifyOtpStatus,userPanVerifyStatus,nameVerifiedPanStatus,age,emailOTP,emailOtpStatus,smsNotificationEmailSendChargeMoney,userPAN,fullName,gender,address,aadhar_voterCard_DL_passport,bankAccountNo,ifscCode,holderName,email,successfulSmsNotificationEmailSendMessage) values('${req.body.mobileNo}','1234',0,0,'','20',0,'',1,'','','','','','','','','','')`);
-    res.status(200).send('mobile number stored in database');
-  }
-
-    db.query(`select * from user where mobileNo= ${req.body.mobileNo} and userOtp = ${req.body.userOtp}`,
+    db.query(`select * from user where mobileNo= '${req.body.mobileNo}' and userOtp = '${req.body.userOtp}'`,
     (err,result) => {
       //console.log(result.length);
 
 
-      if (result.length) {
+      if (result.length >= 1) {
         res.status(200).send("SUCCESS!");
       } else {
         res.status(200).send("FAILED!");
       }
     });
-
-
-  //db.query(`insert into user(mobileNo,userOTP,verifyOtpStatus,userPanVerifyStatus,nameVerifiedPanStatus,age,emailOTP,emailOtpStatus,smsNotificationEmailSendChargeMoney,userPAN,fullName,gender,address,aadhar_voterCard_DL_passport,bankAccountNo,ifscCode,bankName,email,successfulSmsNotificationEmailSendMessage) values('${req.body.mobileNo}','1234',0,0,'','20',0,'',1,'','','','','','','','','','')`);
-  // res.status(200).send('mobile number stored in database');
+  }
 });
 
 router.post('/mobilOtpVerify', signupValidation, (req, res, next) => {
