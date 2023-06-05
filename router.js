@@ -103,25 +103,47 @@ router.post('/enterPassword', signupValidation, (req, res, next) => {
   const saltRounds = 10
   const password = req.body.userPassword;
 
-  bcrypt.genSalt(saltRounds, function (err, salt) {
-    if (err) {
-      throw err
-    } else {
-      bcrypt.hash(password, salt, function(err, hash) {
+  var mobileCheck = 0;
+
+  if (req.body.mobileNo.length == 10) {
+    var mobileNo = req.body.mobileNo;
+    for (var i = 0; i < mobileNo.length; i++) {
+      if (mobileNo.at(i) == '0' || mobileNo.at(i) == '1' || mobileNo.at(i) == '2' || mobileNo.at(i) == '3' || mobileNo.at(i) == '4' || mobileNo.at(i) == '5' || mobileNo.at(i) == '6' || mobileNo.at(i) == '7' || mobileNo.at(i) == '8' || mobileNo.at(i) == '9') {
+
+      } else {
+        mobileCheck = 1;
+        break;
+      }
+    }
+  }
+
+  if (req.body.mobileNo.length != 10 || req.body.mobileNo.at(0) == 0 || req.body.mobileNo.at(0) == 1 || req.body.mobileNo.at(0) == 2 || req.body.mobileNo.at(0) == 3 || req.body.mobileNo.at(0) == 4 || req.body.mobileNo.at(0) == 5) {
+    mobileCheck = 1;
+  }
+
+  if (mobileCheck == 1) {
+    res.status(400).send("plaese enter valid mobile number");
+  } else {
+    if (password.length >= 8) {
+      bcrypt.genSalt(saltRounds, function (err, salt) {
         if (err) {
           throw err
         } else {
-          console.log("password"+hash);
-
-          db.query(`update user set userPassword = '${hash}' where mobileNo = '${req.body.mobileNo}'`);
-          res.status(200).send('updated user password successfully');
-          //$2a$10$FEBywZh8u9M0Cec/0mWep.1kXrwKeiWDba6tdKvDfEBjyePJnDT7K
+          bcrypt.hash(password, salt, function(err, hash) {
+            if (err) {
+              throw err
+            } else {
+              console.log("password"+hash);
+    
+              db.query(`update user set userPassword = '${hash}' where mobileNo = '${req.body.mobileNo}'`);
+              res.status(200).send('updated user password successfully');
+              //$2a$10$FEBywZh8u9M0Cec/0mWep.1kXrwKeiWDba6tdKvDfEBjyePJnDT7K
+            }
+          })
         }
       })
     }
-  })
-
-
+  }
     
 });
 
