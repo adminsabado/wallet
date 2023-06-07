@@ -36,8 +36,10 @@ router.post('/mobileNoEnter', signupValidation, (req, res, next) => {
       if (result.length >= 1) {
         res.status(200).send('this mobileNo already exits use other number');
       } else {
-        db.query(`insert into user(mobileNo,userOTP,verifyOtpStatus,userPanVerifyStatus,nameVerifiedPanStatus,age,emailOTP,emailOtpStatus,smsNotificationEmailSendChargeMoney,userPAN,fullName,gender,address,aadhar_voterCard_DL_passport,bankAccountNo,ifscCode,holderName,email,successfulSmsNotificationEmailSendMessage) values('${req.body.mobileNo}','1234',0,0,'','20',0,'',1,'','','','','','','','','','')`);
-        res.status(200).send('mobile number stored in database');
+        var val = Math.floor(1000 + Math.random() * 9000);
+        //console.log(val);
+        db.query(`insert into user(mobileNo,userOTP,verifyOtpStatus,userPanVerifyStatus,nameVerifiedPanStatus,age,emailOTP,emailOtpStatus,smsNotificationEmailSendChargeMoney,userPAN,fullName,gender,address,aadhar_voterCard_DL_passport,bankAccountNo,ifscCode,holderName,email,successfulSmsNotificationEmailSendMessage) values('${req.body.mobileNo}',${val},0,0,'','20',0,'',1,'','','','','','','','','','')`);
+        res.status(200).send(`mobile number stored in database please use OTP ${val}`);
       }
     })
     
@@ -67,9 +69,11 @@ router.post('/mobilOtpVerify', signupValidation, (req, res, next) => {
   if (mobileCheck == 1) {
     res.status(400).send("plaese enter valid mobile number");
   } else {
+
+    console.log(req.body.mobileNo+" "+req.body.userOtp);
     db.query(`select * from user where mobileNo= '${req.body.mobileNo}' and userOtp = '${req.body.userOtp}'`,
     (err,result) => {
-      //console.log(result.length);
+      console.log(result.length);
 
 
       if (result.length >= 1) {
@@ -238,19 +242,61 @@ router.post('/enterfullName', signupValidation, (req, res, next) => {
 
 router.post('/login', signupValidation, (req, res, next) => {
 
-  console.log(req.body);
+  //console.log(req.body);
   //db.query(`update user set gender = '${req.body.userGender}' where mobileNo = '${req.body.mobileNo}'`);
 
   const bcrypt = require("bcrypt");
   const saltRounds = 10
   const password = req.body.userPassword;
 
+  var mobileCheck = 0;
+
+  if (req.body.mobileNo.length == 10) {
+    var mobileNo = req.body.mobileNo;
+    for (var i = 0; i < mobileNo.length; i++) {
+      if (mobileNo.at(i) == '0' || mobileNo.at(i) == '1' || mobileNo.at(i) == '2' || mobileNo.at(i) == '3' || mobileNo.at(i) == '4' || mobileNo.at(i) == '5' || mobileNo.at(i) == '6' || mobileNo.at(i) == '7' || mobileNo.at(i) == '8' || mobileNo.at(i) == '9') {
+
+      } else {
+        mobileCheck = 1;
+        break;
+      }
+    }
+  }
+
+  if (req.body.mobileNo.length != 10 || req.body.mobileNo.at(0) == 0 || req.body.mobileNo.at(0) == 1 || req.body.mobileNo.at(0) == 2 || req.body.mobileNo.at(0) == 3 || req.body.mobileNo.at(0) == 4 || req.body.mobileNo.at(0) == 5) {
+    mobileCheck = 1;
+  }
+
+  if (mobileCheck == 1) {
+    res.status(400).send("plaese enter valid mobile number");
+  }  else {
+    db.query(`select userPassword from user where mobileNo = '${req.body.mobileNo}'`,
+          (err,result) => {
+
+            console.log(result);
+
+            if (result.length >= 1) {
+              bcrypt.compare(password, result[0].userPassword, function(err, result1) {
+                console.log(result1);
+                if (result1) {
+                    console.log("equal");
+                    res.status(200).send("login successfully");
+                } 
+            });
+            } else {
+              res.status(200).send("please enter valid mobileNo or password");
+
+            }
+      }
+   );  
+  }
+
   db.query(`select userPassword from user where mobileNo = '${req.body.mobileNo}'`,
           (err,result) => {
 
 
-            bcrypt.compare(password, result[0].userPassword, function(err, result) {
-              if (result) {
+            bcrypt.compare(password, result[0].userPassword, function(err, result1) {
+              if (result1) {
                   console.log("equal");
                   res.status(200).send("login successfully");
 
