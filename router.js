@@ -5,7 +5,7 @@ const { signupValidation } = require('./validation');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
- 
+const SECRET_KEY = 'NOTESAPI'; 
 router.post('/mobileNoEnter', signupValidation, (req, res, next) => {
 
   var mobileCheck = 0;
@@ -27,19 +27,20 @@ router.post('/mobileNoEnter', signupValidation, (req, res, next) => {
   }
 
   if (mobileCheck == 1) {
-    res.status(400).send("plaese enter valid mobile number");
+    res.status(400).json({message:"please enter valid mobile number"});
   } else {
 
     db.query(`select * from user where mobileNo = '${req.body.mobileNo}'`,
     (err,result) => {
       //console.log(result);
       if (result.length >= 1) {
-        res.status(200).send('this mobileNo already exits use other number');
+        res.status(200).json({message:"this mobileNo already exits use other number"});
       } else {
         var val = Math.floor(1000 + Math.random() * 9000);
         //console.log(val);
         db.query(`insert into user(mobileNo,userOTP,verifyOtpStatus,userPanVerifyStatus,nameVerifiedPanStatus,age,emailOTP,emailOtpStatus,smsNotificationEmailSendChargeMoney,userPAN,fullName,gender,address,aadhar_voterCard_DL_passport,bankAccountNo,ifscCode,holderName,email,successfulSmsNotificationEmailSendMessage) values('${req.body.mobileNo}',${val},0,0,'','20',0,'',1,'','','','','','','','','','')`);
-        res.status(200).send(`mobile number stored in database please use OTP ${val}`);
+        var token = jwt.sign({mobileNo:req.body.mobileNo},SECRET_KEY);
+        res.status(200).json({message:"Mobile no stored in db",token:token});
       }
     })
     
@@ -75,7 +76,6 @@ router.post('/mobilOtpVerify', signupValidation, (req, res, next) => {
     (err,result) => {
       console.log(result.length);
 
-
       if (result.length >= 1) {
         res.status(200).send("SUCCESS!");
       } else {
@@ -85,20 +85,20 @@ router.post('/mobilOtpVerify', signupValidation, (req, res, next) => {
   }
 });
 
-router.post('/mobilOtpVerify', signupValidation, (req, res, next) => {
+// router.post('/mobilOtpVerify', signupValidation, (req, res, next) => {
 
-    db.query(`select * from user where mobileNo= ${req.body.mobileNo} and userOtp = ${req.body.userOtp}`,
-    (err,result) => {
-      //console.log(result.length);
+//     db.query(`select * from user where mobileNo= ${req.body.mobileNo} and userOtp = ${req.body.userOtp}`,
+//     (err,result) => {
+//       //console.log(result.length);
 
 
-      if (result.length) {
-        res.status(200).send("SUCCESS!");
-      } else {
-        res.status(200).send("FAILED!");
-      }
-    });
-});
+//       if (result.length) {
+//         res.status(200).send("SUCCESS!");
+//       } else {
+//         res.status(200).send("FAILED!");
+//       }
+//     });
+// });
 
 router.post('/enterPassword', signupValidation, (req, res, next) => {
 
